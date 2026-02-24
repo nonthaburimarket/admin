@@ -65,7 +65,7 @@
                 </button>
             </div>
 
-            <!-- 🌟 เพิ่มระบบสลับแท็บ (Tabs) ระหว่าง ร้านค้า และ ไรเดอร์ 🌟 -->
+            <!-- 🌟 ระบบสลับแท็บ (Tabs) ระหว่าง ร้านค้า และ ไรเดอร์ 🌟 -->
             <div class="flex gap-4 px-4 md:px-6 pt-2">
                 <button onclick="switchTab('shops')" id="tab-shops" class="tab-active pb-2 px-2 text-sm transition-all relative">
                     ร้านค้า <span id="badge-shops" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full ml-1 hidden">0</span>
@@ -117,7 +117,7 @@
     </div>
 
     <script>
-        // ⚠️ ลิงก์ Web App ของพี่ณะ
+        // ⚠️ ลิงก์ Web App ของพี่ณะ (หนูใส่ให้เรียบร้อยแล้วค่ะ!)
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwtl2UN6uKKGQuyULSWR2wlzyhyFC34jtON2c_hN6Hx1R1nnOztFBcg9TM3Ze_4T0Gz/exec"; 
 
         let pendingShops = [];
@@ -134,7 +134,7 @@
             renderList(); // วาดรายการใหม่ตามแท็บที่เลือก
         }
 
-        // 🌟 ฟังก์ชันดึงข้อมูลจากสมองกล (ทั้งร้านและไรเดอร์)
+        // 🌟 ฟังก์ชันดึงข้อมูลจากสมองกล (ดักจับ Error ขั้นสูง)
         async function loadPendingData() {
             const listContainer = document.getElementById('list-container');
             const syncIcon = document.getElementById('sync-icon');
@@ -150,13 +150,12 @@
             emptyState.classList.add('hidden');
 
             try {
-                // เรียกใช้ action ใหม่ที่ดึงมาทั้ง 2 อย่างพร้อมกัน
                 const response = await fetch(GAS_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: "admin_get_pending" })
                 });
+                
                 const result = await response.json();
-
                 syncIcon.classList.remove('fa-spin');
 
                 if(result.status === "success") {
@@ -172,7 +171,7 @@
                     bRider.innerText = pendingRiders.length;
                     pendingRiders.length > 0 ? bRider.classList.remove('hidden') : bRider.classList.add('hidden');
 
-                    // อัปเดตตัวเลขเมนูด้านซ้าย (รวม 2 อัน)
+                    // อัปเดตตัวเลขเมนูด้านซ้าย
                     const totalPending = pendingShops.length + pendingRiders.length;
                     const badgeSide = document.getElementById('pending-count-badge-side');
                     if (badgeSide) {
@@ -181,13 +180,29 @@
                     }
 
                     renderList();
+                } else {
+                    // ถ้าระบบหลังบ้านตอบกลับมาว่า Error
+                    throw new Error(result.message || "ระบบหลังบ้านส่งข้อมูลผิดพลาด");
                 }
             } catch (error) {
                 console.error("Error loading pending data:", error);
+                
+                // 🌟 โชว์ Error เจาะจงให้พี่ณะเห็นชัดๆ เลยว่าพังตรงไหน 🌟
                 listContainer.innerHTML = `
-                    <div class="col-span-full py-8 text-center bg-red-50 rounded-2xl border border-red-200">
-                        <i class="fas fa-exclamation-triangle text-3xl text-red-500 mb-2"></i>
-                        <p class="text-red-600 font-bold text-sm">เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล</p>
+                    <div class="col-span-full py-8 px-6 bg-red-50 rounded-2xl border border-red-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
+                            <h3 class="font-bold text-red-700 text-lg">เกิดข้อผิดพลาด</h3>
+                        </div>
+                        <p class="text-red-600 text-sm mb-3"><b>สาเหตุ:</b> ${error.message || "เชื่อมต่อฐานข้อมูลไม่ได้"}</p>
+                        <div class="bg-white p-3 rounded-lg border border-red-100 text-xs text-gray-600">
+                            <b>คำแนะนำในการแก้ไขเบื้องต้น:</b>
+                            <ul class="list-disc ml-5 mt-1">
+                                <li>ใน Google Sheets ได้สร้างแผ่นงาน (Tab) ชื่อ <b>Riders</b> แล้วหรือยัง? (ต้องมี s ด้วยนะคะ)</li>
+                                <li>ตอนอัปเดตโค้ดหลังบ้าน (Code.gs) ได้กด <b>Deploy เป็นเวอร์ชันใหม่</b> หรือยัง?</li>
+                                <li>ตรวจสอบลิงก์ GAS_URL ในไฟล์ html ว่าถูกต้องหรือไม่?</li>
+                            </ul>
+                        </div>
                     </div>`;
                 syncIcon.classList.remove('fa-spin');
             }
