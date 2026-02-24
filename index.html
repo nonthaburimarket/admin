@@ -2,102 +2,317 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - ชุมชน Delivery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; } .sidebar-active { background-color: #1e293b; border-left: 4px solid #10b981; } </style>
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; }
+        .tab-active { border-bottom: 2px solid #10b981; color: #10b981; font-weight: bold; }
+    </style>
 </head>
 <body class="text-gray-800 antialiased flex h-screen overflow-hidden">
 
+    <!-- SIDEBAR (ซ่อนในมือถือ โชว์ในจอใหญ่) -->
     <aside class="w-64 bg-slate-900 text-slate-300 flex-col hidden md:flex shrink-0 shadow-xl z-20">
         <div class="h-16 flex items-center px-6 bg-slate-950 border-b border-slate-800">
-            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold mr-3 shadow-lg shadow-emerald-500/20"><i class="fas fa-leaf"></i></div>
+            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold mr-3 shadow-lg shadow-emerald-500/20">
+                <i class="fas fa-leaf"></i>
+            </div>
             <h1 class="font-bold text-white text-lg tracking-wide">Admin <span class="text-emerald-400">Panel</span></h1>
         </div>
+
         <nav class="flex-1 py-4 space-y-1">
-            <a href="#" class="flex items-center px-6 py-3 sidebar-active text-white transition-colors relative"><i class="fas fa-store w-6"></i> อนุมัติพาร์ทเนอร์ <span id="pending-count-badge-side" class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span></a>
+            <a href="#" class="flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors">
+                <i class="fas fa-chart-pie w-6"></i> ภาพรวมระบบ
+            </a>
+            <a href="#" class="flex items-center px-6 py-3 bg-slate-800 border-left border-emerald-500 border-l-4 text-white transition-colors relative">
+                <i class="fas fa-store w-6"></i> อนุมัติพาร์ทเนอร์ 
+                <span id="pending-count-badge-side" class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </a>
         </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=PeeNaAdmin" class="w-10 h-10 rounded-full bg-slate-800">
+                <div>
+                    <p class="text-sm font-bold text-white">พี่ณะ (CEO)</p>
+                    <p class="text-[10px] text-emerald-400"><i class="fas fa-circle text-[8px]"></i> ระบบออนไลน์</p>
+                </div>
+            </div>
+        </div>
     </aside>
 
+    <!-- MAIN CONTENT -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
-        <header class="bg-white border-b border-slate-200 flex items-center justify-between px-4 py-3 md:px-6 shrink-0 shadow-sm z-10">
-            <div class="flex items-center gap-3">
-                <div class="md:hidden w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold shadow-sm"><i class="fas fa-leaf"></i></div>
-                <div><h2 class="font-bold text-lg md:text-xl text-slate-800 leading-tight">ตรวจสอบพาร์ทเนอร์</h2></div>
-            </div>
-            <button onclick="loadPendingShops()" class="flex items-center gap-2 text-xs md:text-sm text-slate-600 hover:text-emerald-600 font-bold transition-colors bg-slate-100 px-4 py-2 rounded-xl active:scale-95 shadow-sm"><i class="fas fa-sync-alt" id="sync-icon"></i> <span class="hidden md:inline">รีเฟรช</span></button>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50">
-            <div class="max-w-6xl mx-auto">
-                <div class="flex items-center justify-between mb-4 px-1">
-                    <h3 class="font-bold text-slate-700 text-lg"><i class="fas fa-clock text-amber-500 mr-2"></i> รอการอนุมัติ</h3>
-                    <span id="pending-count-badge" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm hidden">0</span>
+        
+        <!-- Header Topbar (รองรับมือถือ) -->
+        <header class="bg-white border-b border-slate-200 flex flex-col pt-3 shrink-0 shadow-sm z-10">
+            <div class="flex items-center justify-between px-4 md:px-6 mb-2">
+                <div class="flex items-center gap-3">
+                    <div class="md:hidden w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-lg md:text-xl text-slate-800 leading-tight">ตรวจสอบพาร์ทเนอร์</h2>
+                        <p class="text-[10px] md:text-xs text-slate-500 hidden md:block">จัดการอนุมัติร้านค้าและไรเดอร์ที่สมัครเข้ามาใหม่</p>
+                    </div>
                 </div>
                 
-                <div id="pending-shops-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <button onclick="loadPendingData()" class="flex items-center gap-2 text-xs md:text-sm text-slate-600 hover:text-emerald-600 font-bold transition-colors bg-slate-100 hover:bg-slate-200 px-3 py-2 md:px-4 md:py-2 rounded-xl active:scale-95 shadow-sm">
+                    <i class="fas fa-sync-alt" id="sync-icon"></i> <span class="hidden md:inline">รีเฟรชข้อมูล</span>
+                </button>
+            </div>
 
-                <div id="empty-state" class="hidden p-12 text-center flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-200 shadow-sm mt-4">
-                    <div class="w-24 h-24 bg-emerald-50 text-emerald-400 rounded-full flex items-center justify-center text-5xl mb-5 shadow-inner"><i class="fas fa-check-double"></i></div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">ไม่มีงานค้าง</h3>
-                    <p class="text-slate-500 text-sm">คุณอนุมัติพาร์ทเนอร์ทั้งหมดเรียบร้อยแล้ว</p>
+            <!-- 🌟 เพิ่มระบบสลับแท็บ (Tabs) ระหว่าง ร้านค้า และ ไรเดอร์ 🌟 -->
+            <div class="flex gap-4 px-4 md:px-6 pt-2">
+                <button onclick="switchTab('shops')" id="tab-shops" class="tab-active pb-2 px-2 text-sm transition-all relative">
+                    ร้านค้า <span id="badge-shops" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full ml-1 hidden">0</span>
+                </button>
+                <button onclick="switchTab('riders')" id="tab-riders" class="text-slate-500 pb-2 px-2 text-sm transition-all relative border-b-2 border-transparent">
+                    ไรเดอร์ <span id="badge-riders" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full ml-1 hidden">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Dashboard Content -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50">
+            
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <h3 class="font-bold text-slate-700 text-lg"><i class="fas fa-clock text-amber-500 mr-2"></i> รอการอนุมัติ (Pending)</h3>
+                    <span id="pending-count-badge" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm hidden">0 รายการ</span>
                 </div>
+                
+                <!-- Container สำหรับแสดงผลการ์ด -->
+                <div id="list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Loading State -->
+                    <div class="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-slate-300">
+                        <i class="fas fa-circle-notch fa-spin text-4xl text-emerald-500 mb-4"></i>
+                        <p class="text-slate-500 font-medium">กำลังดึงข้อมูลจากระบบ...</p>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="hidden p-12 text-center flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-200 shadow-sm mt-4">
+                    <div class="w-24 h-24 bg-emerald-50 text-emerald-400 rounded-full flex items-center justify-center text-5xl mb-5 shadow-inner">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">ยอดเยี่ยมมาก! ไม่มีงานค้าง</h3>
+                    <p class="text-slate-500 text-sm max-w-sm mx-auto">ไม่มีพาร์ทเนอร์รออนุมัติในหมวดหมู่นี้ค่ะ</p>
+                </div>
+
             </div>
         </div>
     </main>
 
+    <!-- Overlay Success Notification -->
     <div id="toast-success" class="fixed top-5 right-5 left-5 md:left-auto bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 transform transition-all duration-300 translate-y-[-150%] md:translate-y-0 md:translate-x-full opacity-0 z-50">
-        <i class="fas fa-check-circle text-3xl"></i><div><p class="font-bold text-base">อนุมัติสำเร็จ!</p></div>
+        <i class="fas fa-check-circle text-3xl"></i>
+        <div>
+            <p class="font-bold text-base">อนุมัติสำเร็จ!</p>
+            <p class="text-xs text-emerald-100" id="toast-msg">อัปเดตสถานะเข้าระบบเรียบร้อย</p>
+        </div>
     </div>
 
     <script>
+        // ⚠️ ลิงก์ Web App ของพี่ณะ
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwtl2UN6uKKGQuyULSWR2wlzyhyFC34jtON2c_hN6Hx1R1nnOztFBcg9TM3Ze_4T0Gz/exec"; 
 
-        window.onload = () => { loadPendingShops(); };
+        let pendingShops = [];
+        let pendingRiders = [];
+        let currentTab = 'shops';
 
-        async function loadPendingShops() {
-            const listContainer = document.getElementById('pending-shops-list');
-            const syncIcon = document.getElementById('sync-icon'); const emptyState = document.getElementById('empty-state');
-            
-            syncIcon.classList.add('fa-spin');
-            listContainer.innerHTML = `<div class="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-slate-300"><i class="fas fa-circle-notch fa-spin text-4xl text-emerald-500 mb-4"></i></div>`;
-            listContainer.classList.remove('hidden'); emptyState.classList.add('hidden');
+        window.onload = () => { loadPendingData(); };
 
-            try {
-                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "admin_get_pending_shops" }) });
-                const result = await response.json();
-                listContainer.innerHTML = ''; syncIcon.classList.remove('fa-spin');
-
-                if(result.status === "success" && result.data.length > 0) {
-                    document.getElementById('pending-count-badge').innerText = result.data.length + ' รายการ'; document.getElementById('pending-count-badge').classList.remove('hidden');
-                    result.data.forEach(shop => {
-                        const dateStr = new Date(shop.date).toLocaleDateString('th-TH', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-                        listContainer.innerHTML += `
-                            <div id="row-${shop.id}" class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm hover:shadow-lg transition-all flex flex-col relative overflow-hidden group">
-                                <div class="absolute top-0 right-0 bg-amber-100 text-amber-600 text-[10px] font-bold px-3 py-1 rounded-bl-xl">รออนุมัติ</div>
-                                <div class="flex items-start gap-4 mb-4 mt-2"><div class="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200"><img src="${shop.image}" onerror="this.src='https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80'" class="w-full h-full object-cover"></div><div class="flex-1"><h4 class="font-bold text-slate-800 text-lg leading-tight mb-1 line-clamp-1">${shop.name}</h4><span class="inline-block bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md text-[10px] font-bold">${shop.category}</span></div></div>
-                                <div class="bg-slate-50 p-3 rounded-2xl mb-4 border border-slate-100 flex-1 space-y-2"><div class="flex justify-between items-center text-xs"><span class="text-slate-500">สมัครเมื่อ</span><span class="font-medium text-slate-700">${dateStr}</span></div><div class="flex justify-between items-center text-xs"><span class="text-slate-500">พร้อมเพย์</span><span class="font-bold text-emerald-600">${shop.promptpay}</span></div></div>
-                                <button onclick="approveShop('${shop.id}', '${shop.name}')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl text-sm font-bold shadow-md active:scale-95 flex justify-center gap-2"><i class="fas fa-check-circle text-lg"></i> อนุมัติร้านค้า</button>
-                            </div>`;
-                    });
-                } else { listContainer.classList.add('hidden'); emptyState.classList.remove('hidden'); document.getElementById('pending-count-badge').classList.add('hidden'); }
-            } catch (error) { listContainer.innerHTML = `<div class="col-span-full py-8 text-center text-red-500">เกิดข้อผิดพลาด</div>`; syncIcon.classList.remove('fa-spin'); }
+        // 🌟 ฟังก์ชันสลับแท็บระหว่างร้านค้ากับไรเดอร์
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-shops').className = tab === 'shops' ? 'tab-active pb-2 px-2 text-sm transition-all relative' : 'text-slate-500 pb-2 px-2 text-sm transition-all relative border-b-2 border-transparent';
+            document.getElementById('tab-riders').className = tab === 'riders' ? 'tab-active pb-2 px-2 text-sm transition-all relative' : 'text-slate-500 pb-2 px-2 text-sm transition-all relative border-b-2 border-transparent';
+            renderList(); // วาดรายการใหม่ตามแท็บที่เลือก
         }
 
-        async function approveShop(shopId, shopName) {
-            if(!confirm(`ยืนยันการอนุมัติร้าน "${shopName}"?`)) return;
-            const card = document.getElementById(`row-${shopId}`); const btn = card.querySelector('button'); btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> รอสักครู่...'; btn.disabled = true;
+        // 🌟 ฟังก์ชันดึงข้อมูลจากสมองกล (ทั้งร้านและไรเดอร์)
+        async function loadPendingData() {
+            const listContainer = document.getElementById('list-container');
+            const syncIcon = document.getElementById('sync-icon');
+            const emptyState = document.getElementById('empty-state');
+            
+            syncIcon.classList.add('fa-spin');
+            listContainer.innerHTML = `
+                <div class="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-slate-300">
+                    <i class="fas fa-circle-notch fa-spin text-4xl text-emerald-500 mb-4"></i>
+                    <p class="text-slate-500 font-medium">กำลังดึงข้อมูลจากระบบ...</p>
+                </div>`;
+            listContainer.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
             try {
-                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "admin_approve_shop", shopId: shopId }) }); const result = await response.json();
+                // เรียกใช้ action ใหม่ที่ดึงมาทั้ง 2 อย่างพร้อมกัน
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "admin_get_pending" })
+                });
+                const result = await response.json();
+
+                syncIcon.classList.remove('fa-spin');
+
                 if(result.status === "success") {
+                    pendingShops = result.shops;
+                    pendingRiders = result.riders;
+                    
+                    // อัปเดตตัวเลขบนแท็บ
+                    const bShop = document.getElementById('badge-shops');
+                    bShop.innerText = pendingShops.length;
+                    pendingShops.length > 0 ? bShop.classList.remove('hidden') : bShop.classList.add('hidden');
+                    
+                    const bRider = document.getElementById('badge-riders');
+                    bRider.innerText = pendingRiders.length;
+                    pendingRiders.length > 0 ? bRider.classList.remove('hidden') : bRider.classList.add('hidden');
+
+                    // อัปเดตตัวเลขเมนูด้านซ้าย (รวม 2 อัน)
+                    const totalPending = pendingShops.length + pendingRiders.length;
+                    const badgeSide = document.getElementById('pending-count-badge-side');
+                    if (badgeSide) {
+                        badgeSide.innerText = totalPending;
+                        totalPending > 0 ? badgeSide.classList.remove('hidden') : badgeSide.classList.add('hidden');
+                    }
+
+                    renderList();
+                }
+            } catch (error) {
+                console.error("Error loading pending data:", error);
+                listContainer.innerHTML = `
+                    <div class="col-span-full py-8 text-center bg-red-50 rounded-2xl border border-red-200">
+                        <i class="fas fa-exclamation-triangle text-3xl text-red-500 mb-2"></i>
+                        <p class="text-red-600 font-bold text-sm">เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล</p>
+                    </div>`;
+                syncIcon.classList.remove('fa-spin');
+            }
+        }
+
+        // 🌟 วาดการ์ด (แยกตามประเภทแท็บ)
+        function renderList() {
+            const container = document.getElementById('list-container');
+            container.innerHTML = ''; 
+            
+            const data = currentTab === 'shops' ? pendingShops : pendingRiders;
+            
+            // อัปเดตจำนวนรวมด้านขวา
+            const badge = document.getElementById('pending-count-badge');
+            badge.innerText = `${data.length} รายการ`;
+            data.length > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
+
+            if(data.length === 0) {
+                container.classList.add('hidden');
+                document.getElementById('empty-state').classList.remove('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            document.getElementById('empty-state').classList.add('hidden');
+
+            data.forEach(item => {
+                const isShop = item.type === 'shop';
+                
+                // ทำความสะอาดเบอร์โทรศัพท์ (ถ้ามันติดเครื่องหมาย ' มาจาก Sheet)
+                let phoneClean = item.detail1;
+                if (!isShop && phoneClean && phoneClean.toString().startsWith("'")) {
+                    phoneClean = phoneClean.toString().substring(1);
+                }
+
+                // สลับป้ายกำกับให้เข้ากับประเภท
+                const label1 = isShop ? 'หมวดหมู่' : 'เบอร์โทร';
+                const val1 = isShop ? item.detail1 : phoneClean;
+                const label2 = isShop ? 'พร้อมเพย์' : 'ป้ายทะเบียน';
+                const val2 = item.detail2;
+
+                const icon = isShop ? 'fa-store' : 'fa-motorcycle';
+                const colorClass = isShop ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-amber-50 text-amber-600 border-amber-100';
+                const btnColor = isShop ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-amber-500 hover:bg-amber-600';
+
+                const cardHtml = `
+                    <div id="row-${item.id}" class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm hover:shadow-lg transition-all flex flex-col relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 bg-red-100 text-red-600 text-[10px] font-bold px-3 py-1 rounded-bl-xl">รออนุมัติ</div>
+                        
+                        <div class="flex items-start gap-4 mb-4 mt-2">
+                            <div class="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200 shadow-inner">
+                                <img src="${item.image}" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=${item.id}'" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-lg leading-tight mb-1 line-clamp-1">
+                                    <i class="fas ${icon} text-gray-400 mr-1 text-sm"></i> ${item.name}
+                                </h4>
+                                <span class="inline-block ${colorClass} px-2 py-0.5 rounded-md text-[10px] font-bold border">${val1}</span>
+                                <p class="text-[10px] text-slate-400 mt-1">รหัส: ${item.id}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-3 rounded-2xl mb-4 border border-slate-100 flex-1 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500">${label2}</span>
+                                <span class="font-bold text-emerald-600">${val2}</span>
+                            </div>
+                        </div>
+
+                        <button onclick="approveItem('${item.id}', '${item.type}', '${item.name}')" class="w-full ${btnColor} text-white py-3.5 rounded-2xl text-sm font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fas fa-check-circle text-lg"></i> อนุมัติ ${isShop ? 'ร้านค้า' : 'ไรเดอร์'}
+                        </button>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        // 🌟 ฟังก์ชันอนุมัติ (ใช้ได้ทั้งร้านและไรเดอร์)
+        async function approveItem(id, type, name) {
+            if(!confirm(`ยืนยันการอนุมัติ ${type === 'shop' ? 'ร้านค้า' : 'บัญชีไรเดอร์'}\n"${name}" ใช่หรือไม่?`)) return;
+
+            const card = document.getElementById(`row-${id}`);
+            const btn = card.querySelector('button');
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin text-lg"></i> กำลังดำเนินการ...';
+            btn.classList.add('opacity-75');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "admin_approve", id: id, type: type })
+                });
+                const result = await response.json();
+
+                if(result.status === "success") {
+                    card.style.transform = 'scale(0.9)';
                     card.style.opacity = '0';
-                    const toast = document.getElementById('toast-success'); toast.classList.remove('translate-y-[-150%]', 'translate-x-full', 'opacity-0');
-                    setTimeout(() => { toast.classList.add('translate-y-[-150%]', 'translate-x-full', 'opacity-0'); }, 3000);
-                    setTimeout(() => { card.remove(); loadPendingShops(); }, 300);
-                } else { alert('Error: ' + result.message); btn.innerHTML = 'อนุมัติร้านค้า'; btn.disabled = false; }
-            } catch (error) { alert('เชื่อมต่อฐานข้อมูลไม่ได้'); btn.innerHTML = 'อนุมัติร้านค้า'; btn.disabled = false; }
+                    
+                    const toast = document.getElementById('toast-success');
+                    document.getElementById('toast-msg').innerText = `เปิดระบบให้ "${name}" แล้ว`;
+                    
+                    if (window.innerWidth < 768) {
+                        toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+                        setTimeout(() => { toast.classList.add('translate-y-[-150%]', 'opacity-0'); }, 3000);
+                    } else {
+                        toast.classList.remove('translate-x-full', 'opacity-0');
+                        setTimeout(() => { toast.classList.add('translate-x-full', 'opacity-0'); }, 3000);
+                    }
+
+                    setTimeout(() => { loadPendingData(); }, 300); // รีโหลดข้อมูลทั้งหมด
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('opacity-75');
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                alert('ไม่สามารถเชื่อมต่อฐานข้อมูลได้ ลองใหม่อีกครั้ง');
+                btn.innerHTML = originalText;
+                btn.classList.remove('opacity-75');
+                btn.disabled = false;
+            }
         }
     </script>
 </body>
