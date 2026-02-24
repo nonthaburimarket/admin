@@ -17,7 +17,6 @@
             <h1 class="font-bold text-white text-lg tracking-wide">Admin <span class="text-emerald-400">Panel</span></h1>
         </div>
         <nav class="flex-1 py-4 space-y-1">
-            <a href="#" class="flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fas fa-chart-pie w-6"></i> ภาพรวมระบบ</a>
             <a href="#" class="flex items-center px-6 py-3 sidebar-active text-white transition-colors relative"><i class="fas fa-store w-6"></i> อนุมัติพาร์ทเนอร์ <span id="pending-count-badge-side" class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span></a>
         </nav>
     </aside>
@@ -28,14 +27,14 @@
                 <div class="md:hidden w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold shadow-sm"><i class="fas fa-leaf"></i></div>
                 <div><h2 class="font-bold text-lg md:text-xl text-slate-800 leading-tight">ตรวจสอบพาร์ทเนอร์</h2></div>
             </div>
-            <button onclick="loadPendingShops()" class="flex items-center gap-2 text-xs md:text-sm text-slate-600 hover:text-emerald-600 font-bold transition-colors bg-slate-100 hover:bg-slate-200 px-3 py-2 md:px-4 md:py-2 rounded-xl active:scale-95 shadow-sm"><i class="fas fa-sync-alt" id="sync-icon"></i> <span class="hidden md:inline">รีเฟรช</span></button>
+            <button onclick="loadPendingShops()" class="flex items-center gap-2 text-xs md:text-sm text-slate-600 hover:text-emerald-600 font-bold transition-colors bg-slate-100 px-4 py-2 rounded-xl active:scale-95 shadow-sm"><i class="fas fa-sync-alt" id="sync-icon"></i> <span class="hidden md:inline">รีเฟรช</span></button>
         </header>
 
         <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50">
             <div class="max-w-6xl mx-auto">
                 <div class="flex items-center justify-between mb-4 px-1">
                     <h3 class="font-bold text-slate-700 text-lg"><i class="fas fa-clock text-amber-500 mr-2"></i> รอการอนุมัติ</h3>
-                    <span id="pending-count-badge" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm hidden">0 รายการ</span>
+                    <span id="pending-count-badge" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm hidden">0</span>
                 </div>
                 
                 <div id="pending-shops-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -49,25 +48,21 @@
         </div>
     </main>
 
-    <!-- Overlay Success Notification -->
     <div id="toast-success" class="fixed top-5 right-5 left-5 md:left-auto bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 transform transition-all duration-300 translate-y-[-150%] md:translate-y-0 md:translate-x-full opacity-0 z-50">
         <i class="fas fa-check-circle text-3xl"></i><div><p class="font-bold text-base">อนุมัติสำเร็จ!</p></div>
     </div>
 
     <script>
-        // ⚠️ เอาลิงก์ GAS (Web App URL) อันใหม่ มาใส่ตรงนี้ด้วยนะคะ
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwtl2UN6uKKGQuyULSWR2wlzyhyFC34jtON2c_hN6Hx1R1nnOztFBcg9TM3Ze_4T0Gz/exec"; 
 
         window.onload = () => { loadPendingShops(); };
 
         async function loadPendingShops() {
             const listContainer = document.getElementById('pending-shops-list');
-            const syncIcon = document.getElementById('sync-icon');
-            const emptyState = document.getElementById('empty-state');
-            const badge = document.getElementById('pending-count-badge');
+            const syncIcon = document.getElementById('sync-icon'); const emptyState = document.getElementById('empty-state');
             
             syncIcon.classList.add('fa-spin');
-            listContainer.innerHTML = `<div class="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-slate-300"><i class="fas fa-circle-notch fa-spin text-4xl text-emerald-500 mb-4"></i><p class="text-slate-500 font-medium">กำลังโหลด...</p></div>`;
+            listContainer.innerHTML = `<div class="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-slate-300"><i class="fas fa-circle-notch fa-spin text-4xl text-emerald-500 mb-4"></i></div>`;
             listContainer.classList.remove('hidden'); emptyState.classList.add('hidden');
 
             try {
@@ -76,43 +71,33 @@
                 listContainer.innerHTML = ''; syncIcon.classList.remove('fa-spin');
 
                 if(result.status === "success" && result.data.length > 0) {
-                    badge.innerText = `${result.data.length} รายการ`; badge.classList.remove('hidden');
+                    document.getElementById('pending-count-badge').innerText = result.data.length + ' รายการ'; document.getElementById('pending-count-badge').classList.remove('hidden');
                     result.data.forEach(shop => {
                         const dateStr = new Date(shop.date).toLocaleDateString('th-TH', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
                         listContainer.innerHTML += `
                             <div id="row-${shop.id}" class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm hover:shadow-lg transition-all flex flex-col relative overflow-hidden group">
                                 <div class="absolute top-0 right-0 bg-amber-100 text-amber-600 text-[10px] font-bold px-3 py-1 rounded-bl-xl">รออนุมัติ</div>
-                                <div class="flex items-start gap-4 mb-4 mt-2">
-                                    <div class="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200 shadow-inner"><img src="${shop.image}" class="w-full h-full object-cover"></div>
-                                    <div class="flex-1"><h4 class="font-bold text-slate-800 text-lg leading-tight mb-1 line-clamp-1">${shop.name}</h4><span class="inline-block bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md text-[10px] font-bold border border-blue-100 mb-1">${shop.category}</span></div>
-                                </div>
-                                <div class="bg-slate-50 p-3 rounded-2xl mb-4 border border-slate-100 flex-1 space-y-2">
-                                    <div class="flex justify-between items-center text-xs"><span class="text-slate-500">สมัครเมื่อ</span><span class="font-medium text-slate-700">${dateStr}</span></div>
-                                    <div class="flex justify-between items-center text-xs"><span class="text-slate-500">พร้อมเพย์</span><span class="font-bold text-emerald-600">${shop.promptpay}</span></div>
-                                </div>
-                                <button onclick="approveShop('${shop.id}', '${shop.name}')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl text-sm font-bold shadow-md active:scale-95 flex justify-center gap-2"><i class="fas fa-check-circle text-lg"></i> อนุมัติเปิดร้านค้า</button>
-                            </div>
-                        `;
+                                <div class="flex items-start gap-4 mb-4 mt-2"><div class="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200"><img src="${shop.image}" onerror="this.src='https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80'" class="w-full h-full object-cover"></div><div class="flex-1"><h4 class="font-bold text-slate-800 text-lg leading-tight mb-1 line-clamp-1">${shop.name}</h4><span class="inline-block bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md text-[10px] font-bold">${shop.category}</span></div></div>
+                                <div class="bg-slate-50 p-3 rounded-2xl mb-4 border border-slate-100 flex-1 space-y-2"><div class="flex justify-between items-center text-xs"><span class="text-slate-500">สมัครเมื่อ</span><span class="font-medium text-slate-700">${dateStr}</span></div><div class="flex justify-between items-center text-xs"><span class="text-slate-500">พร้อมเพย์</span><span class="font-bold text-emerald-600">${shop.promptpay}</span></div></div>
+                                <button onclick="approveShop('${shop.id}', '${shop.name}')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl text-sm font-bold shadow-md active:scale-95 flex justify-center gap-2"><i class="fas fa-check-circle text-lg"></i> อนุมัติร้านค้า</button>
+                            </div>`;
                     });
-                } else { listContainer.classList.add('hidden'); emptyState.classList.remove('hidden'); badge.classList.add('hidden'); }
+                } else { listContainer.classList.add('hidden'); emptyState.classList.remove('hidden'); document.getElementById('pending-count-badge').classList.add('hidden'); }
             } catch (error) { listContainer.innerHTML = `<div class="col-span-full py-8 text-center text-red-500">เกิดข้อผิดพลาด</div>`; syncIcon.classList.remove('fa-spin'); }
         }
 
         async function approveShop(shopId, shopName) {
-            if(!confirm(`ยืนยันเปิดระบบให้ร้าน "${shopName}"?`)) return;
-            const card = document.getElementById(`row-${shopId}`); const btn = card.querySelector('button');
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin text-lg"></i> รอสักครู่...'; btn.disabled = true;
+            if(!confirm(`ยืนยันการอนุมัติร้าน "${shopName}"?`)) return;
+            const card = document.getElementById(`row-${shopId}`); const btn = card.querySelector('button'); btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> รอสักครู่...'; btn.disabled = true;
             try {
-                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "admin_approve_shop", shopId: shopId }) });
-                const result = await response.json();
+                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "admin_approve_shop", shopId: shopId }) }); const result = await response.json();
                 if(result.status === "success") {
                     card.style.opacity = '0';
-                    const toast = document.getElementById('toast-success');
-                    toast.classList.remove('translate-y-[-150%]', 'translate-x-full', 'opacity-0');
+                    const toast = document.getElementById('toast-success'); toast.classList.remove('translate-y-[-150%]', 'translate-x-full', 'opacity-0');
                     setTimeout(() => { toast.classList.add('translate-y-[-150%]', 'translate-x-full', 'opacity-0'); }, 3000);
                     setTimeout(() => { card.remove(); loadPendingShops(); }, 300);
-                } else { alert('Error: ' + result.message); btn.innerHTML = 'อนุมัติเปิดร้านค้า'; btn.disabled = false; }
-            } catch (error) { alert('เชื่อมต่อฐานข้อมูลไม่ได้'); btn.innerHTML = 'อนุมัติเปิดร้านค้า'; btn.disabled = false; }
+                } else { alert('Error: ' + result.message); btn.innerHTML = 'อนุมัติร้านค้า'; btn.disabled = false; }
+            } catch (error) { alert('เชื่อมต่อฐานข้อมูลไม่ได้'); btn.innerHTML = 'อนุมัติร้านค้า'; btn.disabled = false; }
         }
     </script>
 </body>
